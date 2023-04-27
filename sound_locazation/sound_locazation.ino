@@ -103,8 +103,8 @@ int largestDelta() {
   int largestDeltaIndex = 0;
   int largestDelta = 0;
   for (int i = 0; i < 3; ++i) {
-    if ( deltas[i] > largestDelta ) {
-      largestDelta = deltas[i];
+    if ( abs(deltas[i]) > largestDelta ) {
+      largestDelta = abs(deltas[i]);
       largestDeltaIndex = i;
     }
   }
@@ -121,23 +121,24 @@ void loop() {
   calibration();
   rightValue = analogRead(rightSensor);
   leftValue = analogRead(leftSensor);
-  Serial.print("Right:");
-  Serial.print(rightValue);
-  Serial.print(",");
-  Serial.print("Left:");
-  Serial.println(leftValue);
-  Serial.print(",");
-  Serial.print("Middle:");
-  Serial.println(middleValue);
-  Serial.print(",");
-  Serial.print("LeftAverage:");
-  Serial.println(averageLeft);
-  Serial.print(",");
-  Serial.print("RightAverage:");
-  Serial.println(averageRight);
-  Serial.print(",");
-  Serial.print("MiddleAverage:");
-  Serial.println(averageMiddle);
+  middleValue = analogRead(middleSensor);
+  // Serial.print("Right:");
+  // Serial.print(rightValue);
+  // Serial.print(",");
+  // Serial.print("Left:");
+  // Serial.println(leftValue);
+  // Serial.print(",");
+  // Serial.print("Middle:");
+  // Serial.println(middleValue);
+  // Serial.print(",");
+  // Serial.print("LeftAverage:");
+  // Serial.println(averageLeft);
+  // Serial.print(",");
+  // Serial.print("RightAverage:");
+  // Serial.println(averageRight);
+  // Serial.print(",");
+  // Serial.print("MiddleAverage:");
+  // Serial.println(averageMiddle);
 
   // getSample();
 
@@ -151,26 +152,37 @@ void loop() {
   if (middleDeltaMax < abs(middleValue - averageMiddle)) {
     middleDeltaMax = abs(middleValue - averageMiddle);
   }
+   if ( averageRight != 0 && averageLeft != 0 && averageMiddle != 0)
   switch (largestDelta()) {
     case 0: // left
-      if (leftDeltaMax > 100) {
-        servo.write(180);
+      if (abs(leftDeltaMax) > 100) {
+        servo.write(0);
         delay(1000);
       }
       break;
     case 1: // middle
-      if (middleDeltaMax > 100) {
+      if (abs(middleDeltaMax) > 100) {
         servo.write(90);
         delay(1000);
       }
       break;
     case 2: // right
-      if (rightDeltaMax > 100) {
-        servo.write(0);
+      if (abs(rightDeltaMax) > 100) {
+        servo.write(180);
         delay(1000);
       }
       break;
   }
+   Serial.print(",");
+  Serial.print("LeftDelta:");
+  Serial.println(leftDeltaMax);
+  Serial.print(",");
+  Serial.print("RightDelta:");
+  Serial.println(rightDeltaMax);
+  Serial.print(",");
+  Serial.print("MiddleDelta:");
+  Serial.println(middleDeltaMax);
+
 //  if ( !(averageRight == 0) && !(averageLeft && 0)) {
 //    if ( leftDeltaMax > 100 ) {
 //      if ( rightDeltaMax > leftDeltaMax) {
