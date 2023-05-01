@@ -2,19 +2,23 @@
 Servo servo;
 const int rightSensor = A5;
 const int leftSensor = A0;
+const int middleSensor = A3;
 int servoPin = 13;
 int rightValue;
+int middleValue;
 int leftValue;
 int angle;
 
-int sampleLeft[] = {0,0,0,0,0,0,0,0,0,0};
-int sampleRight[] = {0,0,0,0,0,0,0,0,0,0};
+//int sampleLeft[] = {0,0,0,0,0,0,0,0,0,0};
+//int sampleRight[] = {0,0,0,0,0,0,0,0,0,0};
 int maxSample[] = {0,0};
 int t =0;
 int averageLeft = 0;
+int averageMiddle = 0;
 int averageRight = 0;
 int samplingTime;
 int leftDeltaMax;
+int middleDeltaMax;
 int rightDeltaMax;
 
 
@@ -22,7 +26,8 @@ void setup() {
   pinMode(rightSensor, INPUT);
   pinMode(leftSensor, INPUT);
   servo.attach(servoPin);
-
+  servo.write(90);
+  delay(10000);
   Serial.begin(9600);
 }
 
@@ -82,6 +87,29 @@ void calibration() {
 
   leftDeltaMax = max(abs(averageLeft - leftMax), abs(averageLeft - leftMin));
 
+  for (int i = 0; i < 100; ++i) {
+    calibrationArr[i] = analogRead(middleSensor);
+  }
+  int middleMax = getMaximum(calibrationArr, 50);
+  int middleMin = getMin(calibrationArr, 50);
+  averageMiddle = getAverage(calibrationArr, 50);
+
+  middleDeltaMax = max(abs(averageMiddle - middleMax), abs(averageMiddle - middleMin));
+
+}
+
+int largestDelta() {
+  int deltas[] = {leftDeltaMax, middleDeltaMax, rightDeltaMax};
+  int largestDeltaIndex = 0;
+  int largestDelta = 0;
+  for (int i = 0; i < 3; ++i) {
+    if ( abs(deltas[i]) > largestDelta ) {
+      largestDelta = abs(deltas[i]);
+      largestDeltaIndex = i;
+    }
+  }
+  return largestDeltaIndex;
+  
 }
 
 void loop() {
@@ -93,17 +121,24 @@ void loop() {
   calibration();
   rightValue = analogRead(rightSensor);
   leftValue = analogRead(leftSensor);
-  Serial.print("Right:");
-  Serial.print(rightValue);
-  Serial.print(",");
-  Serial.print("Left:");
-  Serial.println(leftValue);
-  Serial.print(",");
-  Serial.print("LeftAverage:");
-  Serial.println(averageLeft);
-  Serial.print(",");
-  Serial.print("RightAverage:");
-  Serial.println(averageRight);
+  middleValue = analogRead(middleSensor);
+  // Serial.print("Right:");
+  // Serial.print(rightValue);
+  // Serial.print(",");
+  // Serial.print("Left:");
+  // Serial.println(leftValue);
+  // Serial.print(",");
+  // Serial.print("Middle:");
+  // Serial.println(middleValue);
+  // Serial.print(",");
+  // Serial.print("LeftAverage:");
+  // Serial.println(averageLeft);
+  // Serial.print(",");
+  // Serial.print("RightAverage:");
+  // Serial.println(averageRight);
+  // Serial.print(",");
+  // Serial.print("MiddleAverage:");
+  // Serial.println(averageMiddle);
 
   // getSample();
 
@@ -114,29 +149,62 @@ void loop() {
   if (rightDeltaMax < abs(rightValue- averageRight)) {
     rightDeltaMax = abs(rightValue- averageRight);
   }
-
-  if ( !(averageRight == 0) && !(averageLeft && 0)) {
-    if ( leftDeltaMax > 100 ) {
-      if ( rightDeltaMax > leftDeltaMax) {
+  if (middleDeltaMax < abs(middleValue - averageMiddle)) {
+    middleDeltaMax = abs(middleValue - averageMiddle);
+  }
+   if ( averageRight != 0 && averageLeft != 0 && averageMiddle != 0)
+  switch (largestDelta()) {
+    case 0: // left
+      if (abs(leftDeltaMax) > 100) {
         servo.write(0);
         delay(1000);
       }
-      else {
+      break;
+    case 1: // middle
+      if (abs(middleDeltaMax) > 100) {
+        servo.write(90);
+        delay(1000);
+      }
+      break;
+    case 2: // right
+      if (abs(rightDeltaMax) > 100) {
         servo.write(180);
         delay(1000);
       }
-    }
-    else if ( rightDeltaMax > 100) {
-      if ( rightDeltaMax > leftDeltaMax ) {
-        servo.write(0);        
-        delay(1000);
-      }
-      else {
-        servo.write(180);
-        delay(1000);
-      }
-    }
+      break;
   }
+   Serial.print(",");
+  Serial.print("LeftDelta:");
+  Serial.println(leftDeltaMax);
+  Serial.print(",");
+  Serial.print("RightDelta:");
+  Serial.println(rightDeltaMax);
+  Serial.print(",");
+  Serial.print("MiddleDelta:");
+  Serial.println(middleDeltaMax);
+
+//  if ( !(averageRight == 0) && !(averageLeft && 0)) {
+//    if ( leftDeltaMax > 100 ) {
+//      if ( rightDeltaMax > leftDeltaMax) {
+//        servo.write(0);
+//        delay(1000);
+//      }
+//      else {
+//        servo.write(180);
+//        delay(1000);
+//      }
+//    }
+//    else if ( rightDeltaMax > 100) {
+//      if ( rightDeltaMax > leftDeltaMax ) {
+//        servo.write(0);        
+//        delay(1000);
+//      }
+//      else {
+//        servo.write(180);
+//        delay(1000);
+//      }
+//    }
+//  }
   // t++;
 
 
