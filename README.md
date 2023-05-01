@@ -18,6 +18,7 @@ The servo will move at a fixed position that will be right infront of the microp
 All pins are in excel sheet in the sound localization folder. 
 
 This is a small circuit diagram of our project
+
 ![Sound Localizing Set up] (img/Localizing_Schematic.jpg)
 
 
