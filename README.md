@@ -19,7 +19,7 @@ All pins are in excel sheet in the sound localization folder.
 
 This is a small circuit diagram of our project
 
-![Sound Localizing Set up] (img/Localizing_Schematic.jpg)
+![Sound Localizing Set up](img/Localizing_Schematic.jpg)
 
 
 ## Issues Encountered during Development
