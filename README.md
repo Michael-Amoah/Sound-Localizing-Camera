@@ -1,6 +1,6 @@
 # Sound Localizing Servo
 ## Introduction
-The Sound Localizing Servo is built to detect sound coming from a sensor and move to the position that the sensor picked up. Currently this is a basic version of this idea, The servo will move depending on the microphone with the loudest input. 
+The Sound Localizing Servo is built to detect sound coming from a sensor and move to the position that the sensor picked up. Currently this is a basic version of this idea. The servo will move depending on the microphone with the loudest input. 
 
 ## Items
 - Standard Servo
