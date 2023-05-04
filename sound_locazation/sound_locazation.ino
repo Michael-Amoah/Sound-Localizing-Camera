@@ -1,11 +1,16 @@
 #include <Servo.h>
 Servo servo;
 const int rightSensor = A5;
+const int rightMidSensor = A4;
 const int leftSensor = A0;
 const int middleSensor = A3;
+const int leftMidSensor = A2;
 int servoPin = 13;
+
+int rightMidValue;
 int rightValue;
 int middleValue;
+int leftMidValue;
 int leftValue;
 int angle;
 
@@ -14,16 +19,23 @@ int angle;
 int maxSample[] = {0,0};
 int t =0;
 int averageLeft = 0;
+int averageLeftMid = 0;
 int averageMiddle = 0;
 int averageRight = 0;
+int averageRightMid = 0;
 int samplingTime;
 int leftDeltaMax;
+int leftMidDeltaMax;
 int middleDeltaMax;
 int rightDeltaMax;
+int rightMidDeltaMax;
 
 
 void setup() {
   pinMode(rightSensor, INPUT);
+  pinMode(middleSensor, INPUT);
+  pinMode(rightMidSensor, INPUT);
+  pinMode(leftMidSensor, INPUT);
   pinMode(leftSensor, INPUT);
   servo.attach(servoPin);
   servo.write(90);
@@ -70,39 +82,69 @@ int getAverage(int arr[], int length) {
 }
 void calibration() {
   int calibrationArr[100];
+  int rightArr[100];
+  int leftArr[100];
+  int midArr[100];
+  int rightMidArr[100];
+  int leftMidArr[100];
+  
   for (int i = 0; i < 100; ++i) {
-    calibrationArr[i] = analogRead(rightSensor);
+//    calibrationArr[i] = analogRead(rightSensor);
+    rightArr[i] = analogRead(rightSensor);
+    leftArr[i] = analogRead(leftSensor);
+    midArr[i] = analogRead(middleSensor);
+    rightMidArr[i] = analogRead(rightMidSensor);
+    leftMidArr[i] = analogRead(leftMidSensor);
   }
-  averageRight = getAverage(calibrationArr, 50);
-  int rightMax = getMaximum(calibrationArr, 50);
-  int rightMin = getMin(calibrationArr,50);
+  averageRight = getAverage(rightArr, 50);
+  int rightMax = getMaximum(rightArr, 50);
+  int rightMin = getMin(rightArr,50);
 
   rightDeltaMax = max(abs(averageRight - rightMax), abs(averageRight - rightMin));
-   for (int i = 0; i < 100; ++i) {
-    calibrationArr[i] = analogRead(leftSensor);
-  }
-  int leftMax = getMaximum(calibrationArr, 50);
-  int leftMin = getMin(calibrationArr, 50);
-  averageLeft = getAverage(calibrationArr, 50);
+//   for (int i = 0; i < 100; ++i) {
+//    calibrationArr[i] = analogRead(leftSensor);
+//  }
+  int leftMax = getMaximum(leftArr, 50);
+  int leftMin = getMin(leftArr, 50);
+  averageLeft = getAverage(leftArr, 50);
 
   leftDeltaMax = max(abs(averageLeft - leftMax), abs(averageLeft - leftMin));
-
-  for (int i = 0; i < 100; ++i) {
-    calibrationArr[i] = analogRead(middleSensor);
-  }
-  int middleMax = getMaximum(calibrationArr, 50);
-  int middleMin = getMin(calibrationArr, 50);
-  averageMiddle = getAverage(calibrationArr, 50);
+//
+//  for (int i = 0; i < 100; ++i) {
+//    calibrationArr[i] = analogRead(middleSensor);
+//  }
+  int middleMax = getMaximum(midArr, 50);
+  int middleMin = getMin(midArr, 50);
+  averageMiddle = getAverage(midArr, 50);
 
   middleDeltaMax = max(abs(averageMiddle - middleMax), abs(averageMiddle - middleMin));
+
+//  for (int i = 0; i < 100; ++i) {
+//    calibrationArr[i] = analogRead(rightMidSensor);
+//  }
+  int rightMidMax = getMaximum(rightMidArr, 50);
+  int rightMidMin = getMin(rightMidArr, 50);
+  averageRightMid = getAverage(rightMidArr, 50);
+
+  rightMidDeltaMax = max(abs(averageRightMid - rightMidMax), abs(averageRightMid - rightMidMin));
+
+//  
+//  for (int i = 0; i < 100; ++i) {
+//    calibrationArr[i] = analogRead(leftMidSensor);
+//  }
+  int leftMidMax = getMaximum(leftMidArr, 50);
+  int leftMidMin = getMin(leftMidArr, 50);
+  averageLeftMid = getAverage(leftMidArr, 50);
+
+  leftMidDeltaMax = max(abs(averageLeftMid - leftMidMax), abs(averageLeftMid - leftMidMin));
 
 }
 
 int largestDelta() {
-  int deltas[] = {leftDeltaMax, middleDeltaMax, rightDeltaMax};
+  int deltas[] = {leftDeltaMax, middleDeltaMax, rightDeltaMax, leftMidDeltaMax, rightMidDeltaMax};
   int largestDeltaIndex = 0;
   int largestDelta = 0;
-  for (int i = 0; i < 3; ++i) {
+  for (int i = 0; i < 5; ++i) {
     if ( abs(deltas[i]) > largestDelta ) {
       largestDelta = abs(deltas[i]);
       largestDeltaIndex = i;
@@ -122,6 +164,8 @@ void loop() {
   rightValue = analogRead(rightSensor);
   leftValue = analogRead(leftSensor);
   middleValue = analogRead(middleSensor);
+  rightMidValue = analogRead(rightMidSensor);
+  leftMidValue = analogRead(leftMidSensor);
   // Serial.print("Right:");
   // Serial.print(rightValue);
   // Serial.print(",");
@@ -152,7 +196,13 @@ void loop() {
   if (middleDeltaMax < abs(middleValue - averageMiddle)) {
     middleDeltaMax = abs(middleValue - averageMiddle);
   }
-   if ( averageRight != 0 && averageLeft != 0 && averageMiddle != 0)
+  if (rightMidDeltaMax < abs(rightMidValue - averageRightMid)) {
+    rightMidDeltaMax = abs(rightMidValue - averageRightMid);
+  }
+  if (leftMidDeltaMax < abs(leftMidValue - averageLeftMid)) {
+    leftMidDeltaMax = abs(leftMidValue - averageLeftMid);
+  }
+   if ( averageRight != 0 && averageLeft != 0 && averageMiddle != 0 && averageRightMid != 0 && averageLeftMid != 0) {
   switch (largestDelta()) {
     case 0: // left
       if (abs(leftDeltaMax) > 100) {
@@ -172,16 +222,35 @@ void loop() {
         delay(1000);
       }
       break;
+    case 3: // rightMid
+      if (abs(leftMidDeltaMax) > 100) {
+        servo.write(45);
+        delay(1000);
+      }
+      break;
+      case 4: // leftMid
+      if (abs(rightMidDeltaMax) > 100) {
+        servo.write(135);
+        delay(1000);
+      }
+      break;
   }
+   }
+    Serial.print(",");
+  Serial.print("MiddleDelta:");
+  Serial.println(middleDeltaMax);
+   Serial.print(",");
+  Serial.print("RightDelta:");
+  Serial.println(rightDeltaMax);
    Serial.print(",");
   Serial.print("LeftDelta:");
   Serial.println(leftDeltaMax);
   Serial.print(",");
-  Serial.print("RightDelta:");
+  Serial.print("RightMidDelta:");
   Serial.println(rightDeltaMax);
   Serial.print(",");
-  Serial.print("MiddleDelta:");
-  Serial.println(middleDeltaMax);
+  Serial.print("LeftMidDelta:");
+  Serial.println(leftMidDeltaMax);
 
 //  if ( !(averageRight == 0) && !(averageLeft && 0)) {
 //    if ( leftDeltaMax > 100 ) {
