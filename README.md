@@ -14,7 +14,7 @@ With our implementation, a sample of 100 is read from the microphone modules seq
 The servo will move at a fixed position that will be right infront of the microphone module that has the highest delta. 
 ## Demo
 - [Link to Youtube Video](https://www.youtube.com/shorts/TuTN1Xh6XoU)
-- [Link to Youtube Video](https://youtu.be/V1yyWFiiQbc)
+- [Link to Youtube Demo Video](https://youtu.be/V1yyWFiiQbc)
 ## Pin Assignments
 All pins are in excel sheet in the sound localization folder. 
 
